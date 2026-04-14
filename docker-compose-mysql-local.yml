@@ -1,0 +1,117 @@
+services:
+  mysql-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: secure_password
+      MYSQL_DATABASE: nodeauth
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+
+  nodeauth-worker:
+    build: .
+    image: nodeauth-worker:latest
+    container_name: nodeauth
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # =========== 数据库引擎 ===========
+      # [必填] 支持 sqlite mysql postgresql，默认 sqlite
+      - DB_ENGINE=mysql
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=secure_password
+      - DB_NAME=nodeauth
+      - DB_SSL=false
+
+      # =========== 核心安全参数 ===========
+      # [必填] NodeAuth 授权码
+      # 通过 `https://license.nodeauth.io` 获取
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 base64,hex32 类型
+      - NODEAUTH_LICENSE=your_license_here
+
+      # [必填] 用于签发会话 Token 的密钥，要求 32 位以上随机字符串
+      # 建议使用 `https://tools.nodeauth.io` 生成，并对明文进行编码，支持 base64,hex32 类型
+      - JWT_SECRET=your_jwt_secret_here
+  
+      # [必填] 加密2FA种子的底层密钥，非常重要！丢失会造成数据无法解密！要求 32 位以上随机字符串
+      # 建议使用 `https://tools.nodeauth.io` 生成，并对明文进行编码，支持 aes,base64,hex32 类型
+      - ENCRYPTION_KEY=your_super_secret_encryption_key_here
+      
+      # [必填] 允许登录系统的用户邮箱、Telegram ID、Web3 钱包地址，多个用逗号隔开, 支持 aes,base64,hex32 类型
+      - OAUTH_ALLOWED_USERS=your_email@example.com,your_telegram_id,your_web3_wallet_address
+      
+      # =========== 日志级别 ===========  
+      # [可选] 日志级别: debug, info, warn, error.
+      - LOG_LEVEL=info
+      
+      # =========== 登录供应商配置 (至少选择一种,推荐使用 Github) ===========
+      # Github 登录配置
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_GITHUB_CLIENT_ID=
+      # - OAUTH_GITHUB_CLIENT_SECRET=
+      # - OAUTH_GITHUB_REDIRECT_URI=https://<your_domain>/oauth/callback
+
+      # Cloudflare 登录配置
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_CLOUDFLARE_CLIENT_ID=
+      # - OAUTH_CLOUDFLARE_CLIENT_SECRET=
+      # - OAUTH_CLOUDFLARE_REDIRECT_URI=https://<your_domain>/oauth/callback
+      # - OAUTH_CLOUDFLARE_ORG_DOMAIN=https://<your_team>.cloudflareaccess.com
+
+      # Google 登录配置
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_GOOGLE_CLIENT_ID=
+      # - OAUTH_GOOGLE_CLIENT_SECRET=
+      # - OAUTH_GOOGLE_REDIRECT_URI=https://<your_domain>/oauth/callback
+
+      # Telegram 登录配置
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_TELEGRAM_BOT_NAME=
+      # - OAUTH_TELEGRAM_BOT_TOKEN=
+      # - OAUTH_TELEGRAM_WEBHOOK_SECRET=<建议 32 位以上随机字符串>
+
+      # Gitee 登录配置
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_GITEE_CLIENT_ID=
+      # - OAUTH_GITEE_CLIENT_SECRET=
+      # - OAUTH_GITEE_REDIRECT_URI=https://<your_domain>/oauth/callback
+
+      # Nodeloc 登录配置
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_NODELOC_CLIENT_ID=
+      # - OAUTH_NODELOC_CLIENT_SECRET=
+      # - OAUTH_NODELOC_REDIRECT_URI=https://<your_domain>/oauth/callback
+
+      # Web3 钱包登录 (WalletConnect)
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_WALLETCONNECT_PROJECT_ID=
+      # - OAUTH_WALLETCONNECT_SELF_PROXY=false
+
+      # =========== 云端备份供应商配置 ===========
+      # Google Drive
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_GOOGLE_CLIENT_ID=
+      # - OAUTH_GOOGLE_CLIENT_SECRET=
+      # - OAUTH_GOOGLE_BACKUP_REDIRECT_URI=https://<your_domain>/api/backups/oauth/google/callback
+
+      # Dropbox
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_DROPBOX_CLIENT_ID=
+      # - OAUTH_DROPBOX_CLIENT_SECRET=
+      # - OAUTH_DROPBOX_BACKUP_REDIRECT_URI=https://<your_domain>/api/backups/oauth/dropbox/callback
+
+      # Microsoft OneDrive
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_MICROSOFT_CLIENT_ID=
+      # - OAUTH_MICROSOFT_CLIENT_SECRET=
+      # - OAUTH_MICROSOFT_BACKUP_REDIRECT_URI=https://<your_domain>/api/backups/oauth/microsoft/callback
+
+      # 百度网盘
+      # 建议使用 `https://tools.nodeauth.io` 对明文进行编码，支持 aes, base64, hex32 类型
+      # - OAUTH_BAIDU_CLIENT_ID=
+      # - OAUTH_BAIDU_CLIENT_SECRET=
+      # - OAUTH_BAIDU_BACKUP_REDIRECT_URI=https://<your_domain>/api/backups/oauth/baidu/callback
