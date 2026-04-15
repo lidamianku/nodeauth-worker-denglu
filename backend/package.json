@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "wrangler dev --config ../wrangler.dev.toml --ip 0.0.0.0 --port 8787 --test-scheduled",
     "deploy": "wrangler deploy --minify ./src/app/worker.ts",
-    "build:docker": "node scripts/build.js",
+    "build:docker": "node scripts/build-docker.js",
     "build:worker": "node scripts/build-worker.js",
     "test": "vitest run"
   },
