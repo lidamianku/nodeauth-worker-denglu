@@ -1,4 +1,4 @@
-name = "nodeauth-worker"
+name = "nodeauth-worker-denglu"
 main = "backend/dist/worker.js" 
 compatibility_date = "2026-03-17"
 compatibility_flags = ["nodejs_compat"]
